@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>응급환자 골든타임 분석</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Malgun Gothic", sans-serif;
+    background: #f3f6fa;
+    color: #172033;
+}
+
+header {
+    background: #102a43;
+    color: white;
+    padding: 24px 8%;
+}
+
+header h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+.intro {
+    margin-bottom: 25px;
+}
+
+.intro h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.intro p {
+    color: #64748b;
+    line-height: 1.7;
+}
+
+.panel {
+    background: white;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    margin-bottom: 25px;
+}
+
+.panel h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input, select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 20px;
+    background: white;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.info-card h4 {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.info-card p {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.map-placeholder {
+    height: 350px;
+    background: #e8eef5;
+    border: 1px dashed #94a3b8;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+}
+
+.result {
+    display: none;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 18px;
+    border-radius: 12px;
+    margin-top: 20px;
+    line-height: 1.8;
+}
+
+footer {
+    text-align: center;
+    color: #94a3b8;
+    padding: 30px;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        padding: 22px;
+    }
+
+    .panel {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>응급환자 골든타임 분석 시스템</h1>
+    <p>환자 발생 위치 기반 응급의료기관 접근성 분석</p>
+</header>
+
+<main class="container">
+
+    <section class="intro">
+        <h2>응급의료 접근성 분석</h2>
+        <p>
+            환자 발생 위치와 질환 유형을 설정하여
+            응급의료기관까지의 접근성을 분석하는 시스템입니다.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h3>분석 조건 설정</h3>
+
+        <label for="location">환자 발생 위치</label>
+        <input type="text" id="location"
+        placeholder="예: 서울특별시 강남구">
+
+        <label for="disease">질환 유형</label>
+        <select id="disease">
+            <option value="심정지">심정지</option>
+            <option value="심근경색">심근경색</option>
+            <option value="뇌졸중">뇌졸중</option>
+            <option value="중증응급">중증응급</option>
+        </select>
+
+        <button onclick="analyze()">분석 시작</button>
+
+        <div class="result" id="result"></div>
+    </section>
+
+    <section class="info-grid">
+        <div class="info-card">
+            <h4>환자 발생 위치</h4>
+            <p id="locationResult">미설정</p>
+        </div>
+
+        <div class="info-card">
+            <h4>선택 질환</h4>
+            <p id="diseaseResult">미설정</p>
+        </div>
+
+        <div class="info-card">
+            <h4>분석 상태</h4>
+            <p id="statusResult">대기 중</p>
+        </div>
+    </section>
+
+    <section class="panel" style="margin-top:25px;">
+        <h3>지도 및 이동 경로</h3>
+
+        <div class="map-placeholder">
+            <div>
+                <h3>지도 분석 영역</h3>
+                <p style="margin-top:10px;">
+                    추후 환자 위치, 병원 위치 및 이동 경로가 표시됩니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h3>병원 접근성 분석 결과</h3>
+        <p style="color:#64748b; line-height:1.8;">
+            분석 실행 후 응급의료기관 정보와 이동거리,
+            예상 이동시간 및 골든타임 분석 결과를 표시할 영역입니다.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    응급환자 골든타임 분석 프로젝트
+</footer>
+
+<script>
+function analyze() {
+    const location = document.getElementById("location").value;
+    const disease = document.getElementById("disease").value;
+
+    if (!location.trim()) {
+        alert("환자 발생 위치를 입력해주세요.");
+        return;
+    }
+
+    document.getElementById("locationResult").textContent = location;
+    document.getElementById("diseaseResult").textContent = disease;
+    document.getElementById("statusResult").textContent = "조건 설정 완료";
+
+    const result = document.getElementById("result");
+
+    result.style.display = "block";
+    result.innerHTML =
+        "<strong>분석 조건이 설정되었습니다.</strong><br>" +
+        "환자 위치: " + location + "<br>" +
+        "질환 유형: " + disease + "<br>" +
+        "다음 단계에서 실제 지도 및 병원 분석 기능을 연결합니다.";
+}
+</script>
+
+</body>
+</html>
